@@ -13,7 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Arrays;
-import optimisation.ParameterConstraintTransform;
+import transform.ParameterConstraintTransform;
 
 /**
  *
@@ -60,7 +60,7 @@ public class Test_Simplex_Decode {
 
                     while ((line = constraintReader2.readLine()) != null) {
                         String[] ent = line.split(",");
-                        constraints[lnNum] = new ParameterConstraintTransform(new double[]{
+                        constraints[lnNum] = new transform.ParameterConstraintTransformSineCurve(new double[]{
                             Double.parseDouble(ent[0]), Double.parseDouble(ent[1])});
                         lnNum++;
                     }

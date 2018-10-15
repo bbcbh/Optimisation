@@ -6,9 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.ObjectInputStream;
 import java.util.Arrays;
-import optimisation.ParameterConstraintTransform;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+import transform.ParameterConstraintTransform;
 
 public class Test_GA_Pop_Analysis {
 
@@ -140,7 +140,7 @@ public class Test_GA_Pop_Analysis {
                 
                 while ((line = constraintReader2.readLine()) != null) {
                     String[] ent = line.split(",");
-                    constraints[p] = new ParameterConstraintTransform(new double[]{
+                    constraints[p] = new transform.ParameterConstraintTransformSineCurve(new double[]{
                         Double.parseDouble(ent[0]), Double.parseDouble(ent[1])});
                     p++;
                 }

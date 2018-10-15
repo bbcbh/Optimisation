@@ -2,7 +2,7 @@ package test;
 
 import optimisation.AbstractDxFunc;
 import optimisation.AbstractResidualFunc;
-import optimisation.ParameterConstraintTransform;
+import transform.ParameterConstraintTransform;
 import optimisation.LineSearchOptimisier;
 
 /**
@@ -31,8 +31,8 @@ public class Test_Opt_Rosenbrock {
         opt.setResOptions(false, LineSearchOptimisier.RES_OPTIONS_CSV);                
         
         opt.setP0(x0, new ParameterConstraintTransform[]{
-            new ParameterConstraintTransform(new double[]{-1.5,1.5}),
-            new ParameterConstraintTransform(new double[]{-1.5,1.5}),            
+            new transform.ParameterConstraintTransformSineCurve(new double[]{-1.5,1.5}),
+            new transform.ParameterConstraintTransformSineCurve(new double[]{-1.5,1.5}),            
         });                               
         
         opt.initialise();                                    
