@@ -358,8 +358,8 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                     ex.printStackTrace(System.err);
                 }
                 sortGA_POP();
-                int numValidEnt = 0;
 
+                int numValidEnt = 0;
                 for (double[] GA_POP_ROW : GA_POP) {
                     if (!Double.isNaN(GA_POP_ROW[0])) {
                         numValidEnt++;
@@ -368,9 +368,9 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                 paramList[PARAM_GA_OPT_LAST_COMPLETED_SIM_COUNTER] = numValidEnt;
                 paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER] = numValidEnt;
 
-                f.renameTo(new File(f.getAbsoluteFile()  
-                        + "_" + Integer.toString(numValidEnt) 
-                        + "_" + Long.toString(System.currentTimeMillis())));
+                f.renameTo(new File(f.getAbsoluteFile()
+                        + "_" + Long.toString(System.currentTimeMillis())
+                        + "_" + Integer.toString(numValidEnt)));
 
                 System.out.println(this.getClass().getName() + ": Number of valid entries = " + numValidEnt);
 
@@ -445,8 +445,10 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
 
     protected void exportGAPop() {
 
-        int numSim = (Integer) paramList[PARAM_GA_OPT_LAST_COMPLETED_SIM_COUNTER];
-        int numExport = (Integer) paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER];
+        final int numSim = (Integer) paramList[PARAM_GA_OPT_LAST_COMPLETED_SIM_COUNTER];
+        final int numExport = (Integer) paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER];
+        
+        //System.out.println("Export GA Pop called. Number of completed sim = " + numSim + " Number of exported sim = " +  numExport);
 
         if (numExport < numSim) {
 
@@ -461,15 +463,27 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                         objOut = new ObjectOutputStream(new FileOutputStream(tarFile));
                         objOut.writeObject(GA_Pop_copy);
                         objOut.close();
+
                     } catch (IOException ex) {
                         ex.printStackTrace(System.err);
                     }
+
+                    int numValidEnt = 0;
+                    for (double[] GA_POP_ROW : GA_Pop_copy) {
+                        if (!Double.isNaN(GA_POP_ROW[0])) {
+                            numValidEnt++;
+                        }
+                    }
+
+                    System.out.println(this.getClass().getName() + ": Pop Exported at " + tarFile.getAbsolutePath()
+                            +  " Sim #"+ numSim + ", Number of valid entries = " + numValidEnt);
                 }
             };
 
             ExecutorService executor = Executors.newFixedThreadPool(1);
             executor.submit(exportPopThread);
             executor.shutdown();
+
             paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER] = numSim;
 
         }
