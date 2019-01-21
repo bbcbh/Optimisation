@@ -28,14 +28,16 @@ import util.AppendableObjOutstreamFactory;
  * </pre>
  *
  * @author Ben Hui
- * @version 20140226
+ * @version 20190121
  *
  * <p>
  * History</p>
  * <p>
  * 20140226: Bug Fix: Sorting under same cost </p>
  * <p>
- * 20140225: Added stopping condition.</p>
+ * 20140225: Added stopping condition.</p>  
+ * <p>
+ * 20190121: Added printing of best result to output.</p>
  *
  */
 public class NelderMeadOptimiser extends AbstractParameterOptimiser {
@@ -162,7 +164,8 @@ public class NelderMeadOptimiser extends AbstractParameterOptimiser {
 
                     }
 
-                    System.out.println("Last result update = " + df.format(new java.util.Date()));
+                    System.out.println("Last result update = " + df.format(new java.util.Date()) + 
+                            " P = " + Arrays.toString(bestP) + " Cost = " + bestCost );
 
                 }
                 // Simplex
