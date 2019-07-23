@@ -27,7 +27,7 @@ public abstract class AbstractParameterOptimiser {
 
     protected double[] X0; // Dimension n - if has constraint this will be transformed parameter
     protected double[] R0; // Dimension m
-    protected ParameterConstraintTransform[] constraints; // Dimension n
+    protected ParameterConstraintTransform[] constraints; // Dimension n        
 
     protected double baseCost;
 
@@ -80,6 +80,7 @@ public abstract class AbstractParameterOptimiser {
     public void setR0(double[] R0) {
         this.R0 = R0;
     }
+
 
     public double[] getX0() {
         return X0;
