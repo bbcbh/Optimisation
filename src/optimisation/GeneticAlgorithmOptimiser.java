@@ -1,16 +1,18 @@
 package optimisation;
 
+import java.io.BufferedReader;
 import transform.ParameterConstraintTransform;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.Callable;
@@ -19,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 import util.AppendableObjOutstreamFactory;
@@ -249,10 +253,22 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
     }
 
     protected void perform_GA() {
-        
+
         sortGA_POP();
         java.text.DateFormat df = java.text.DateFormat.getDateTimeInstance();
         System.out.println("Perform GA at = " + df.format(new java.util.Date()));
+
+        File gaPop = (File) paramList[PARAM_GA_OPT_POP_FILE];
+
+        File exportCSVFile = new File(gaPop.getParentFile(), gaPop.getName()
+                + "_" + Long.toString(System.currentTimeMillis()) + ".csv");
+
+        try {
+            GeneticAlgorithmOptimiser.printNumberArraysToCSV(GA_POP, exportCSVFile);
+            System.out.println("GA Pop at " + gaPop.getAbsolutePath() + " exported as " + exportCSVFile.getAbsolutePath());
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace(System.err);
+        }
 
         RandomGenerator rng = (RandomGenerator) paramList[PARAM_GA_OPT_RNG];
 
@@ -429,7 +445,7 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
         p0_collection = new double[numP0][constraints.length];
 
         for (int i = 0; i < numP0; i++) {
-            System.arraycopy(p0, i * constraints.length, p0_collection[i], 0, constraints.length);            
+            System.arraycopy(p0, i * constraints.length, p0_collection[i], 0, constraints.length);
         }
 
         super.setP0(Arrays.copyOf(p0, constraints.length), constraints);
@@ -468,16 +484,16 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                 paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER] = numValidEnt;
 
                 f.renameTo(new File(f.getAbsoluteFile()
-                        + "_" + Long.toString(System.currentTimeMillis())
-                        + "_" + Integer.toString(numValidEnt)));
+                        + "_" + Long.toString(System.currentTimeMillis())));
 
                 System.out.println(this.getClass().getName() + ": Number of valid entries = " + numValidEnt);
 
             }
+
         }
 
         if (GA_POP == null) {
-            System.out.println(this.getClass().getName() + ": Generating new GA population");
+
             double[] x0 = getX0(); // x0 - transform parameter
             double[] r0 = getR0();
 
@@ -488,31 +504,115 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
             RandomGenerator rng = (RandomGenerator) paramList[PARAM_GA_OPT_RNG];
 
             GA_POP = new Number[((Integer) paramList[PARAM_GA_OPT_POP_SIZE])][1 + x0.length + r0.length + numSeedPerEnt];
+            
+            
+            boolean genGA = true;
 
-            // Always include the first one               
-            GA_POP[0][0] = Double.NaN;
-            System.arraycopy(doubleToNumberArray(x0), 0, GA_POP[0], 1, x0.length);
-            System.arraycopy(doubleToNumberArray(r0), 0, GA_POP[0], 1 + x0.length, r0.length);
+            if (paramList[PARAM_GA_OPT_POP_FILE] != null) {
+                File f = (File) paramList[PARAM_GA_OPT_POP_FILE];
+                // Test for pre-exisiting population file            
+                final Pattern Pattern_PRE_GA_POP_CSV = Pattern.compile(f.getName() + "_(\\d+).csv");
 
-            //Populating GA_Population 
-            for (int i = 1; i < GA_POP.length; i++) {
-                GA_POP[i] = new Number[1 + x0.length + +r0.length + numSeedPerEnt];
-                GA_POP[i][0] = Double.NaN;
-                for (int j = 0; j < (Integer) paramList[PARAM_GA_OPT_NUM_PARAM]; j++) {
-                    if (i < p0_collection.length) {
-                        GA_POP[i][j + 1] = constraints[j].toUncontrainted(p0_collection[i][j]);
+                File[] PRE_GA_POP_CSV_FILES = f.getParentFile().listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        return Pattern_PRE_GA_POP_CSV.matcher(file.getName()).matches();
 
-                    } else {
-                        GA_POP[i][j + 1] = rng.nextDouble() * Math.PI / 2; // j+ 1 as the first term is residue
                     }
-                }
-                for (int j = (Integer) paramList[PARAM_GA_OPT_NUM_PARAM] + 1; j < GA_POP[i].length; j++) {
-                    GA_POP[i][j] = Double.NaN;
+                });
+
+                if (PRE_GA_POP_CSV_FILES.length > 0) {
+
+                    Arrays.sort(PRE_GA_POP_CSV_FILES, new Comparator<File>() {
+                        @Override
+                        public int compare(File t, File t1) {
+                            Matcher m = Pattern_PRE_GA_POP_CSV.matcher(t.getName());
+                            Matcher m1 = Pattern_PRE_GA_POP_CSV.matcher(t1.getName());
+
+                            m.matches();
+                            m1.matches();
+
+                            return Long.compare(Long.parseLong(m.group(1)),
+                                    Long.parseLong(m1.group(1)));
+
+                        }
+                    });
+
+                    System.out.println(this.getClass().getName() + ": Number of GA_POP CSV = " + PRE_GA_POP_CSV_FILES.length
+                            + ". Importing the latest one (" + PRE_GA_POP_CSV_FILES[PRE_GA_POP_CSV_FILES.length - 1].getAbsolutePath()
+                            + ") as GA_POP.");
+
+                    File selCSV = PRE_GA_POP_CSV_FILES[PRE_GA_POP_CSV_FILES.length - 1];
+
+                    try (BufferedReader reader = new BufferedReader(new FileReader(selCSV))) {
+                        String line;
+
+                        int r = 0;
+                        while ((line = reader.readLine()) != null) {
+
+                            if (r > GA_POP.length) {
+                                System.out.println(this.getClass().getName() + ": Number of row in "
+                                        + selCSV.getAbsolutePath()
+                                        + " > number of row in GA_POP. Row #" + r + " ignored");
+                                break;
+                            }
+
+                            String[] ent = line.split(",");
+                            for (int i = 0; i < ent.length; i++) {
+                                if (i > GA_POP[r].length) {
+                                    System.out.println(this.getClass().getName() + ": Number of col in "
+                                            + selCSV.getAbsolutePath()
+                                            + " > number of col in GA_POP. Col #" + i + " ignored");
+                                } else {
+                                    if (i < 1 + x0.length + r0.length) {
+                                        GA_POP[r][i] = new Double(ent[i]);
+                                    } else {
+                                        GA_POP[r][i] = new Long(ent[i]);
+                                    }
+                                }
+                            }
+                            r++;
+                        }
+                        
+                        genGA = false;
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace(System.err);                        
+                    }
+
                 }
 
             }
 
-            GA_POP[0][0] = sumOfSqCost(r0);
+            if (genGA) {
+                
+                System.out.println(this.getClass().getName() + ": Generating new GA population");
+
+                // Always include the first one               
+                GA_POP[0][0] = Double.NaN;
+                System.arraycopy(doubleToNumberArray(x0), 0, GA_POP[0], 1, x0.length);
+                System.arraycopy(doubleToNumberArray(r0), 0, GA_POP[0], 1 + x0.length, r0.length);
+
+                //Populating GA_Population 
+                for (int i = 1; i < GA_POP.length; i++) {
+                    GA_POP[i] = new Number[1 + x0.length + +r0.length + numSeedPerEnt];
+                    GA_POP[i][0] = Double.NaN;
+                    for (int j = 0; j < (Integer) paramList[PARAM_GA_OPT_NUM_PARAM]; j++) {
+                        if (i < p0_collection.length) {
+                            GA_POP[i][j + 1] = constraints[j].toUncontrainted(p0_collection[i][j]);
+
+                        } else {
+                            GA_POP[i][j + 1] = rng.nextDouble() * Math.PI / 2; // j+ 1 as the first term is residue
+                        }
+                    }
+                    for (int j = (Integer) paramList[PARAM_GA_OPT_NUM_PARAM] + 1; j < GA_POP[i].length; j++) {
+                        GA_POP[i][j] = Double.NaN;
+                    }
+
+                }
+                GA_POP[0][0] = sumOfSqCost(r0);
+            }
+
             sortGA_POP();
 
         }
