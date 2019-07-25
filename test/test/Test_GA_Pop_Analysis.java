@@ -16,8 +16,8 @@ public class Test_GA_Pop_Analysis {
     
     public static void main(String[] arg) {
         final String BASE_DIR_STR
-                = //"C:\\Users\\Bhui\\OneDrive - UNSW\\MSM_MulitSite\\Test\\Optim_Preval_Range_Fit";
-                "C:\\Users\\Bhui\\Desktop\\FTP\\MSM\\Optim_7_Range_GA";
+                = "C:\\Users\\Bhui\\OneDrive - UNSW\\MSM_MulitSite\\Test\\Optim_Preval_Range_Fit";
+                //"C:\\Users\\Bhui\\Desktop\\FTP\\MSM\\Optim_7_Range_GA";
         
         final File BASE_DIR = new File(BASE_DIR_STR);
         
