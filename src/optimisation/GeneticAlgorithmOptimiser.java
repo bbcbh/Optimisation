@@ -472,21 +472,26 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace(System.err);
                 }
-                sortGA_POP();
+                if (GA_POP != null) {
+                    sortGA_POP();
 
-                int numValidEnt = 0;
-                for (Number[] GA_POP_ROW : GA_POP) {
-                    if (!Double.isNaN((double) GA_POP_ROW[0])) {
-                        numValidEnt++;
+                    int numValidEnt = 0;
+                    for (Number[] GA_POP_ROW : GA_POP) {
+                        if (!Double.isNaN((double) GA_POP_ROW[0])) {
+                            numValidEnt++;
+                        }
                     }
+                    paramList[PARAM_GA_OPT_LAST_COMPLETED_SIM_COUNTER] = numValidEnt;
+                    paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER] = numValidEnt;
+
+                    f.renameTo(new File(f.getAbsoluteFile()
+                            + "_" + Long.toString(System.currentTimeMillis())));
+
+                    System.out.println(this.getClass().getName() + ": Number of valid entries = " + numValidEnt);
+                } else {                    
+                    System.out.println(this.getClass().getName() + ": Error in reading GA_POP from " + f.getAbsolutePath());
+
                 }
-                paramList[PARAM_GA_OPT_LAST_COMPLETED_SIM_COUNTER] = numValidEnt;
-                paramList[PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER] = numValidEnt;
-
-                f.renameTo(new File(f.getAbsoluteFile()
-                        + "_" + Long.toString(System.currentTimeMillis())));
-
-                System.out.println(this.getClass().getName() + ": Number of valid entries = " + numValidEnt);
 
             }
 
@@ -504,8 +509,7 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
             RandomGenerator rng = (RandomGenerator) paramList[PARAM_GA_OPT_RNG];
 
             GA_POP = new Number[((Integer) paramList[PARAM_GA_OPT_POP_SIZE])][1 + x0.length + r0.length + numSeedPerEnt];
-            
-            
+
             boolean genGA = true;
 
             if (paramList[PARAM_GA_OPT_POP_FILE] != null) {
@@ -537,12 +541,13 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
 
                         }
                     });
+                    
+                    File selCSV = PRE_GA_POP_CSV_FILES[PRE_GA_POP_CSV_FILES.length - 1];
 
                     System.out.println(this.getClass().getName() + ": Number of GA_POP CSV = " + PRE_GA_POP_CSV_FILES.length
-                            + ". Importing the latest one (" + PRE_GA_POP_CSV_FILES[PRE_GA_POP_CSV_FILES.length - 1].getAbsolutePath()
-                            + ") as GA_POP.");
+                            + ". Importing the latest one (" + selCSV.getAbsolutePath() + ") as GA_POP.");
 
-                    File selCSV = PRE_GA_POP_CSV_FILES[PRE_GA_POP_CSV_FILES.length - 1];
+                    
 
                     try (BufferedReader reader = new BufferedReader(new FileReader(selCSV))) {
                         String line;
@@ -573,11 +578,11 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                             }
                             r++;
                         }
-                        
+
                         genGA = false;
 
                     } catch (IOException ex) {
-                        ex.printStackTrace(System.err);                        
+                        ex.printStackTrace(System.err);
                     }
 
                 }
@@ -585,7 +590,7 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
             }
 
             if (genGA) {
-                
+
                 System.out.println(this.getClass().getName() + ": Generating new GA population");
 
                 // Always include the first one               

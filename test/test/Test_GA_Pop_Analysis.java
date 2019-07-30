@@ -22,7 +22,7 @@ public class Test_GA_Pop_Analysis {
         final File BASE_DIR = new File(BASE_DIR_STR);
         
         File[] filelist = new File[]{
-            new File(BASE_DIR, "GA_POP.obj_1563947713423_1000")
+            new File(BASE_DIR, "GA_POP.obj")
         };
         
         File maxEntryFile = null;
@@ -82,7 +82,7 @@ public class Test_GA_Pop_Analysis {
             }
             
             File exportCSVFile = new File(gaPop.getParentFile(), gaPop.getName()
-                    + "_" + Long.toString(System.currentTimeMillis()) + ".csv");
+                    + "_Analysis_" + Long.toString(System.currentTimeMillis()) + ".csv");
             
             try {
                 GeneticAlgorithmOptimiser.printNumberArraysToCSV(GA_POP, exportCSVFile);                
