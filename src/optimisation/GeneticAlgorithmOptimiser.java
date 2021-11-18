@@ -50,28 +50,37 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
         //0: PARAM_GA_OPT_POP_FILE
         new File("GA_POP.obj"),
         //1: PARAM_GA_OPT_POP_SIZE
-        new Integer(1000),
+        //new Integer(1000),
+        1000,
         //2: PARAM_GA_OPT_POP_CROSSOVER
         // For example, 0.4 means keep 40% of simulation run, and 40% will be generated, and 20% from random
-        new Float(0.40f),
+        //new Float(0.40f),
+        0.40f,
         //3: PARAM_GA_OPT_USE_PARALLEL
-        new Integer(Runtime.getRuntime().availableProcessors()),
+        //new Integer(Runtime.getRuntime().availableProcessors()),
+        Runtime.getRuntime().availableProcessors(),
         //4: PARAM_GA_OPT_RNG
         new MersenneTwister(2251912970037127827l),
         //5: PARAM_GA_OPT_NUM_PARAM
-        new Integer(2),
+        //new Integer(2),
+        2,
         //6: PARAM_GA_OPT_NUM_R0
-        new Integer(1),
+        //new Integer(1),
+        1,
         //7: PARAM_GA_OPT_LAST_EXPORT_SIM_COUNTER
-        new Integer(0),
+        //new Integer(0),
+        0,
         //8: PARAM_GA_OPT_LAST_COMPLETED_SIM_COUNTER
-        new Integer(0),
+        //new Integer(0),
+        0,
         //9: PARAM_GA_RO_TOL
         // if used (i.e. not null), then it will have format of [[r0_min, r1_min...], [[r0_max, r1_max...]]
         null,
         //10: PARAM_GA_NUM_SEED_PER_GA_POP_ENT
         // if used, will store preset seed in GA_POP as well
-        new Integer(0),};
+        //new Integer(0),
+        0,
+        };
 
     protected Number[][] GA_POP = null; // Format: {residue, x0,.., r0,..., seed_0,....}
     protected Number[] bestRow = null;
@@ -325,7 +334,8 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
 
                 int numThreadAtTime = ((Integer) paramList[PARAM_GA_OPT_USE_PARALLEL]);
                 int numThreadInPool = 0;
-                Future<Object[]>[] r0Collection = new Future[GA_POP.length];
+                @SuppressWarnings("unchecked")
+				Future<Object[]>[] r0Collection = new Future[GA_POP.length];
 
                 if (numThreadAtTime > 1) {
                     executor = Executors.newFixedThreadPool(((Integer) paramList[PARAM_GA_OPT_USE_PARALLEL]));
@@ -421,12 +431,7 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
     private class Callable_CalculateResidue implements Callable<Object[]> {
 
         double[] paramX0;
-        Number[] rowEnt;
-        int numParam;
-
         public Callable_CalculateResidue(Number[] rowEnt, int numParam) {
-            this.rowEnt = rowEnt;
-            this.numParam = numParam;
             this.paramX0 = numberToDoubleArray(Arrays.copyOfRange(rowEnt, 1, 1 + numParam));
 
         }
@@ -449,14 +454,14 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
         }
 
         super.setP0(Arrays.copyOf(p0, constraints.length), constraints);
-        paramList[PARAM_GA_OPT_NUM_PARAM] = new Integer(constraints.length);
+        paramList[PARAM_GA_OPT_NUM_PARAM] = constraints.length; //new Integer(constraints.length);
 
     }
 
     @Override
     public void setR0(double[] R0) {
         super.setR0(R0);
-        paramList[PARAM_GA_OPT_NUM_R0] = new Integer(R0.length);
+        paramList[PARAM_GA_OPT_NUM_R0] = R0.length;  //new Integer(R0.length);
     }
 
     @Override
@@ -570,9 +575,9 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                                             + " > number of col in GA_POP. Col #" + i + " ignored");
                                 } else {
                                     if (i < 1 + x0.length + r0.length) {
-                                        GA_POP[r][i] = new Double(ent[i]);
+                                        GA_POP[r][i] = Double.parseDouble(ent[i]); //new Double(ent[i]);
                                     } else {
-                                        GA_POP[r][i] = new Long(ent[i]);
+                                        GA_POP[r][i] = Long.parseLong(ent[i]); //new Long(ent[i]);
                                     }
                                 }
                             }
@@ -694,12 +699,12 @@ public class GeneticAlgorithmOptimiser extends AbstractParameterOptimiser {
                         ex.printStackTrace(System.err);
                     }
 
-                    int numValidEnt = 0;
-                    for (Number[] GA_POP_ROW : GA_Pop_copy) {
-                        if (!Double.isNaN((double) GA_POP_ROW[0])) {
-                            numValidEnt++;
-                        }
-                    }
+                    //int numValidEnt = 0;
+                    //for (Number[] GA_POP_ROW : GA_Pop_copy) {
+                    //    if (!Double.isNaN((double) GA_POP_ROW[0])) {
+                    //        numValidEnt++;
+                    //    }
+                    //}
 
                     System.out.println(this.getClass().getName() + ": Pop Exported at " + tarFile.getAbsolutePath()
                             + " Sim #" + numSim);

@@ -63,7 +63,8 @@ public class Test_Simplex_Decode {
                         constraints[lnNum] = new transform.ParameterConstraintTransformSineCurve(new double[]{
                             Double.parseDouble(ent[0]), Double.parseDouble(ent[1])});
                         lnNum++;
-                    }
+                    }                    
+                    constraintReader2.close();
                 }
 
                 System.out.println("SX (raw parameter):");

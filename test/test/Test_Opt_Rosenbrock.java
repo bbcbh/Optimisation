@@ -1,6 +1,5 @@
 package test;
 
-import optimisation.AbstractDxFunc;
 import optimisation.AbstractResidualFunc;
 import transform.ParameterConstraintTransform;
 import optimisation.LineSearchOptimisier;

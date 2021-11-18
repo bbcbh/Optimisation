@@ -150,6 +150,7 @@ public class Test_GA_Pop_Analysis {
                         Double.parseDouble(ent[0]), Double.parseDouble(ent[1])});
                     p++;
                 }
+                constraintReader2.close();
             } catch (Exception ex) {
                 System.out.println("Error in reading " + contraintFile.getAbsolutePath() + ".");
             }

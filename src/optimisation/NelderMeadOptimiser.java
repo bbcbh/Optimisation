@@ -10,11 +10,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import static optimisation.AbstractParameterOptimiser.FILEPATH_CSV;
-import static optimisation.AbstractParameterOptimiser.FILEPATH_OBJ;
-import static optimisation.AbstractParameterOptimiser.RES_OPTIONS_CSV;
-import static optimisation.AbstractParameterOptimiser.RES_OPTIONS_OBJ;
-import static optimisation.AbstractParameterOptimiser.RES_OPTIONS_PRINT;
+
 import util.AppendableObjOutstreamFactory;
 
 /**
@@ -203,7 +199,7 @@ public class NelderMeadOptimiser extends AbstractParameterOptimiser {
 
         while (!optStopped) {
             handleResults();
-            double pre_step_max = simplex_cost[simplex_cost.length - 1];
+            //double pre_step_max = simplex_cost[simplex_cost.length - 1];
 
             double[] x_bar_sum, x_r; // centroid, refection points
             double[] f_r;
